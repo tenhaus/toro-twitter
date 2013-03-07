@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="800">
+	
+	<mx:Script>
+		<![CDATA[
+			
+			public static const CANCEL : String = "cancel";			
+			public static const FETCH_FEATURE_LIST : String = "fetch_feature_list";			
+			
+			private function fetchList() : void
+			{
+				dispatchEvent( new Event( FETCH_FEATURE_LIST ) );								
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Box width="100%" height="100%">
+		
+		<mx:Box direction="horizontal" width="100%" height="45" backgroundColor="#1a1a1a" verticalAlign="middle" 
+			paddingLeft="20" paddingRight="20" horizontalGap="0">
+		
+			<mx:Label text="toro" styleName="header" />
+			
+			<mx:Spacer width="100%" />
+			
+			<mx:LinkButton color="#018ee8" label="back" paddingLeft="0" paddingRight="0" 
+				click="dispatchEvent(new Event(CANCEL))" />
+		
+		</mx:Box>
+		
+		<mx:Box width="100%" height="100%" horizontalAlign="center"
+			paddingLeft="20" paddingRight="20">
+			
+			<mx:Label styleName="feedbackheader" text="Current List" paddingTop="10" 
+				width="100%" />		
+			<mx:TextArea text="Please use this area to submit bug reports, feature requests, or anything else you would like to say to the Toro developers." 
+				editable="false" selectable="false" borderStyle="none" backgroundAlpha="0" 
+				width="100%" />
+			
+			<mx:List width="100%" height="75%" />
+			
+			<mx:HBox width="100%" horizontalAlign="center">
+				<mx:Label text="you have 2 votes remaining" width="100%" fontWeight="normal"/>
+				<mx:LinkButton label="refresh" />	
+			</mx:HBox>
+			
+		
+		</mx:Box>
+		
+	</mx:Box>
+	
+</mx:Canvas>

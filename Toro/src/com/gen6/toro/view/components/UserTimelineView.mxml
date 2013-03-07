@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml" 
+		width="100%" height="100%" 
+		xmlns:controls="qs.controls.*" backgroundColor="#ffffff"
+		xmlns:components="com.gen6.toro.view.components.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import twitter.api.data.TwitterStatus;
+			import mx.controls.Image;
+		
+			import mx.collections.ArrayCollection;
+			
+			public static const GET_USER_COMMENTS:  String = "get_user_comments";
+			public static const MAX_COMMENTS : Number = 100;
+			
+			[Bindable]
+			private var _userComments : ArrayCollection;
+			
+			public function appendComments( comments : ArrayCollection ) : void
+			{
+				if( _userComments == null )
+				{
+					_userComments = comments;
+					return;
+				}
+				
+				for each( var comment : TwitterStatus in comments )
+				{
+					_userComments.addItemAt( comment, 0 );
+					if( _userComments.length > MAX_COMMENTS ) _userComments.removeItemAt( _userComments.length - 1 );										
+				}
+			}
+			
+			public function resetComments() : void
+			{
+				_userComments = null;
+			}	
+					
+		]]>
+	</mx:Script>
+	
+	<mx:List id="dg_comments" width="100%" height="100%" dataProvider="{_userComments}" variableRowHeight="true" 
+		itemRenderer="com.gen6.toro.view.components.CommentItemRenderer" cachePolicy="on" 
+		alternatingItemColors="[#fafafa, #fafafa]" paddingBottom="0" paddingTop="0" />
+
+</mx:Box>

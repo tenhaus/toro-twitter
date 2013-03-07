@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   systemChrome="none" showStatusBar="false" 
+		   showTitleBar="false" transparent="true"
+		   showGripper="false" click="this.close()"
+		   backgroundColor="#ffffff"		   
+		   closeEffect="{fadeout}" 
+		   creationCompleteEffect="{fadein}"
+		   creationComplete="init()" 
+		   styleName="comment" alpha="0.6"
+		   paddingLeft="5" paddingTop="5"
+		   paddingRight="5" paddingBottom="5" 
+		   xmlns:controls="qs.controls.*"
+		   dropShadowEnabled="true"
+		   borderStyle="solid">
+	
+	<mx:Style>
+		
+		.comment
+		{
+			border-skin: ClassReference( 'assets.skins.CommentItemRenderer' );
+		}
+		
+	</mx:Style>
+	
+	<mx:Script>
+		<![CDATA[
+			import twitter.api.data.TwitterStatus;
+			
+			[Bindable]			
+			private var _text : String;
+			
+			[Bindable]
+			private var _imageURL : String;
+			
+			private var _timer : Timer;
+			
+			public function set twitterStatus( value : TwitterStatus ) : void
+			{
+				_text = value.text;
+				_imageURL = value.user.profileImageUrl;									
+			}
+			
+			private function init() : void
+			{
+				_timer = new Timer( 4000 );
+				_timer.addEventListener( TimerEvent.TIMER, handleTimerTick );
+				_timer.start();
+			}
+			
+			private function handleTimerTick( event : TimerEvent ) : void
+			{
+				this.close();
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Fade id="fadeout" duration="300" alphaFrom="1" alphaTo="0" />
+	<mx:Fade id="fadein" duration="300" alphaFrom="0" alphaTo="1" />
+	
+	<mx:HBox width="100%" height="100%">
+		
+		<controls:SuperImage id="img_avatar" source="{_imageURL}" width="24" height="24" />
+		
+		<mx:Text id="t_notification" fontFamily="Verdana" fontSize="10" width="100%" height="100%" color="#ededed" 
+			htmlText="{_text}" selectable="false" truncateToFit="true" />
+		
+			
+	</mx:HBox>
+	
+	
+</mx:Window>

@@ -1,0 +1,257 @@
+/* CSS file */
+
+@font-face
+{
+    src: url("/assets/fonts/gillmt.ttf");
+    /* src: local( "Gill Sans MT" ); */
+    fontFamily: "Gill Sans MT";
+    fontWeight: normal;
+}
+
+
+@font-face
+{
+    src: url("/assets/fonts/gillmtb.ttf");
+    /* src: local("Gill Sans MT"); */
+    fontFamily: "Gill Sans MT Bold";
+    font-weight: bold;    
+}
+		
+@font-face
+{
+    /* src: url("/assets/fonts/MyriadPro.swf"); */
+    src: url("/assets/fonts/MyriadPro-Regular.otf");
+    fontFamily: "Myriad Pro";
+}
+
+@font-face
+{
+    /* src: url("/assets/fonts/MyriadPro.swf"); */
+    src: url("/assets/fonts/MyriadPro-Bold.otf");
+    fontFamily: "Myriad Pro";
+    fontWeight: bold;
+}
+
+@font-face
+{
+    /* src: url("/assets/fonts/MyriadPro.swf"); */
+    src: url("/assets/fonts/MyriadPro-Italic.otf");
+    fontFamily: "Myriad Pro";
+    fontWeight: italic;
+}
+
+/*
+@font-face
+{
+    src: url("/assets/fonts/MyriadPro.swf");
+    fontFamily: "Myriad Pro";
+    fontWeight: bold;
+    MyriadProtyle: italic;
+}
+*/
+
+.test
+{
+	corner-radius: 0;
+}
+
+.navButtons
+{	
+	corner-radius: 0;	
+   	color: #555555;
+   	font-weight: bold;  
+   	font-size: 10;
+   	font-thickness: 150;
+	font-sharpness: 150;		
+    fontFamily: "Gill Sans MT Bold";    
+}
+
+.loginHeader
+{
+	font-size: 16;
+	font-family: "Gill Sans MT Bold";
+}
+
+Form
+{
+	font-family: "Myriad Pro";
+		
+	font-size: 12;
+}
+
+.replyButton
+{
+	over-skin: Embed( '/assets/images/reply.png');
+	down-skin: Embed( '/assets/images/reply.png');
+	up-skin: Embed( '/assets/images/reply_red.png');
+}
+
+.retweetButton
+{
+	over-skin: Embed( '/assets/images/rt-grey.png');
+	down-skin: Embed( '/assets/images/rt-grey.png');
+	up-skin: Embed( '/assets/images/rt-red.png');
+}
+
+.directmessageButton
+{
+	over-skin: Embed( '/assets/images/dm-grey.png');
+	down-skin: Embed( '/assets/images/dm-grey.png');
+	up-skin: Embed( '/assets/images/dm-red.png');
+}
+
+.favoriteButton
+{
+	over-skin: Embed( '/assets/images/icon_star_empty.gif' );
+	down-skin: Embed( '/assets/images/icon_star_empty.gif' );
+	up-skin: Embed( '/assets/images/icon_star_empty_red.png' );
+}
+
+.friendsButton
+{
+	up-skin: ClassReference( 'assets.skins.Button_upSkin' );
+	over-skin: ClassReference( 'assets.skins.Button_overSkin' );
+	down-skin: ClassReference( 'assets.skins.Button_downSkin' );
+	
+	selected-up-skin: ClassReference( 'assets.skins.Button_upSkin' );
+	selected-over-skin: ClassReference( 'assets.skins.Button_overSkin' );
+	selected-down-skin: ClassReference( 'assets.skins.Button_downSkin' );
+	
+	color: #FFFFFF;
+	textRollOverColor: #CCFFFF;
+	textSelectedColor: #CCCCCC;
+	text-align: left;
+	padding-left: 20px;
+}
+
+.border
+{
+	border-skin: ClassReference( 'assets.skins.Border_borderSkin' );
+}
+
+.comment
+{
+	border-skin: ClassReference( 'assets.skins.CommentItemRenderer' );
+}
+
+/*
+TabNavigator
+{
+   horizontalGap: 0;
+   horizontalAlign: center;
+   dropShadowEnabled: false;
+   tabStyleName: "myTabs";
+   firstTabStyleName: "myTabs";
+   lastTabStyleName: "myTabs";
+   selectedTabTextStyleName: "mySelectedTabs";
+   background-color: #333333;
+}
+
+.myTabs 
+{		 
+   highlightAlphas: 1, 0;
+   fillAlphas: 1, 1;
+   fillColors: #ffffff, #ffffff;
+   backgroundColor: #333333;
+   color: #333333;
+   themeColor: #999999;		 		
+}
+
+.mySelectedTabs 
+{
+   color: #ffffff;
+   textAlign: center;
+   fontWeight: bold;
+}
+*/
+/*
+TabBar 
+{
+   cornerRadius: 0;
+   tabStyleName: "myTabs";
+   firstTabStyleName: "myTabs";
+   lastTabStyleName: "myTabs";
+   selectedTabTextStyleName: "mySelectedTabs";   
+}
+
+.myTabs 
+{	
+    cornerRadius: 0;
+   	color: #555555;
+   	font-weight: bold;  
+   	font-size: 10;
+   	font-thickness: 150;
+	font-sharpness: 150;		
+    fontFamily: "Gill Sans MT Bold";
+
+}
+
+.mySelectedTabs {
+}
+*/
+
+.header
+{
+	fontFamily: "Gill Sans MT";
+	font-size: 24;
+	font-thickness: 200;
+	font-sharpness: 150;
+	font-grid-fit-type: pixel;
+	color: #ffffff;	
+}
+
+.feedbackheader
+{
+	fontFamily: "Gill Sans MT";
+	font-size: 24;
+	font-thickness: 200;
+	font-sharpness: 150;
+	font-grid-fit-type: pixel;			
+}
+
+/*
+Button
+{
+    fontFamily: "Myriad Pro";
+    fontSize: 12;
+    height: 100;
+    paddingLeft: 25px;
+    paddingRight:25px;
+    color: #FFFFFF;
+    textRollOverColor: #CCFFFF;
+    textSelectedColor: #CCCCCC;
+    upSkin: ClassReference( 'assets.skins.ButtonSkin' );
+    overSkin: ClassReference( 'assets.skins.ButtonSkin' );
+    downSkin: ClassReference( 'assets.skins.ButtonSkin' );
+}
+*/
+
+.sectionButton
+{
+	color: #eeeeee;
+	
+	up-skin:   ClassReference( "assets.skins.ButtonSkins.ButtonUpSkin" );
+	over-skin: ClassReference( "assets.skins.ButtonSkins.ButtonOverSkin" );
+	down-skin: ClassReference( "assets.skins.ButtonSkins.ButtonDownSkin" );
+	
+	selected-up-skin: ClassReference( "assets.skins.ButtonSkins.ButtonSelectedSkin" );
+	
+}
+
+.userLabel
+{
+	fontFamily: "Myriad Pro";			
+}
+
+VScrollBar {
+   cornerRadius: 0;
+   highlightAlphas: 0, 0;
+   fillAlphas: 1, 1, 1, 1;
+   fillColors: #cccccc, #cccccc, #cccccc, #cccccc;
+   trackColors: #ffffff, #ffffff;
+   themeColor: #333333;
+   /*borderColor: #333333;*/
+   border-style: none;
+   iconColor: #ffffff;
+   thumbOffset: 0;
+}

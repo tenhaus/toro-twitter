@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.gen6.toro.entity.FeatureListVO;
+			import com.gen6.toro.entity.FeatureVO;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			
+			public static const SEND_FEEDBACK : String = "send_feedback";
+			public static const FETCH_FEATURE_LIST : String = "fetch_feature_list";
+			public static const VOTE : String = "vote";			
+			public static const CANCEL : String = "cancel_feedback";
+			
+			[Bindable]
+			private var _featureList : FeatureListVO = new FeatureListVO();
+			
+			[Bindable]
+			private var _voteEnabled : Boolean;
+			
+			public function set tasks( value : FeatureListVO ) : void
+			{
+				_featureList = value;
+				_voteEnabled = _featureList.votesLeft > 0;
+			}
+			
+			private function handleTaskSelect() : void
+			{
+				_voteEnabled = _voteEnabled && dg_tasks.selectedItem != null;
+			}
+			
+			public function displayFetchTasksFailed() : void
+			{								
+			}
+			
+			private function fetchList() : void
+			{
+				dispatchEvent( new Event( FETCH_FEATURE_LIST ) );								
+			}
+			
+			private function sendEvent( eventName : String ) : void
+			{
+				if( eventName == SEND_FEEDBACK )
+				{
+					b_send.enabled = false;
+				}
+				
+				dispatchEvent( new Event(eventName, true) );
+			}
+			
+			public function setFeedBackSuccess() : void
+			{
+				b_send.enabled = true;
+				Alert.show( "Thank you for your feedback!", "Feedback Sent", 4, null, handleFeedBackAlertClose );
+			}
+			
+			public function setFeedBackFailed() : void
+			{
+				b_send.enabled = true;
+				Alert.show( "The connection to the server could not be established.  Please try again.", "Send Failed" );				
+			}
+			
+			private function handleFeedBackAlertClose( event : Event ) : void
+			{
+				ta_comment.text = "";
+				sendEvent( CANCEL );				
+			}
+			
+			private function vote() : void
+			{
+				if( dg_tasks.selectedItem != null )
+				{
+					dispatchEvent( new Event( VOTE ) );
+				}
+				else
+				{
+					Alert.show( "Please select an item to vote on", "No item selected" );
+				}							
+			}
+			
+			public function displayVoteSuccess() : void
+			{
+				Alert.show( "Thank you for voting.", "Thank you" );
+			}
+			
+			public function displayVoteFailed() : void
+			{
+				Alert.show( "Could not contact server.  Please try again.", "Server no talky" );
+			}
+			
+			public function displayVoteExceedLimit() : void
+			{
+				Alert.show( "Sorry but the server says you have no votes left for this release.", "Out of votes" );
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Box direction="horizontal" width="100%" height="45" backgroundColor="#1a1a1a" verticalAlign="middle" 
+			paddingLeft="20" paddingRight="20" horizontalGap="0">
+		
+		<mx:Label text="toro" styleName="header" />
+		
+		<mx:Spacer width="100%" />
+		
+		<mx:LinkButton color="#018ee8" label="back" paddingLeft="0" paddingRight="0" 
+			click="dispatchEvent(new Event(CANCEL))" />
+	
+	</mx:Box>
+	
+	<mx:LinkBar dataProvider="{vs_feedback}" width="100%" horizontalAlign="center" />
+	
+	<mx:ViewStack id="vs_feedback" width="100%" height="100%">
+			
+		<mx:Box width="100%" height="100%" horizontalAlign="center"
+			paddingLeft="20" paddingRight="20" paddingBottom="20" 
+			label="feature voting">
+			
+			<mx:Label styleName="feedbackheader" text="Current List" paddingTop="10" 
+				width="100%" />
+						
+			<mx:Text text="Here's how it works - With every release, you get two votes to vote on what you think the next feature should be.  Submit feature requests using the feedback area and they'll be reviewed and added to the list." 
+				selectable="false"  
+				width="100%" paddingBottom="10" />
+			
+			<mx:DataGrid id="dg_tasks" width="100%" height="70%" dataProvider="{_featureList.list}" 
+				variableRowHeight="true" selectionColor="#EBE9A0" change="handleTaskSelect()">
+				<mx:columns>
+					<mx:DataGridColumn headerText="Description" dataField="htmlText" itemRenderer="com.gen6.toro.view.components.MultilineHTMLRenderer" />
+					<mx:DataGridColumn headerText="Votes" dataField="votes" width="55" />
+				</mx:columns>
+			</mx:DataGrid>
+			
+			<mx:HBox width="100%" horizontalAlign="center">
+				<mx:LinkButton label="refresh" click="fetchList()" />
+				<mx:Spacer width="100%" />
+				<mx:Button label="vote ( {_featureList.votesLeft} votes remaining )" enabled="{_voteEnabled}" click="vote()" />
+			</mx:HBox>			
+		
+		</mx:Box>
+			
+		<mx:Box width="100%" height="100%" horizontalAlign="center"
+				paddingLeft="20" paddingRight="20" paddingBottom="20"
+				label="feedback">
+			
+			<mx:Label styleName="feedbackheader" text="Feedback" paddingTop="10" 
+				width="100%" />
+						
+			<mx:Text text="Please use this area to submit bug reports, feature requests, or anything else you would like to say to the Toro developers." 
+				selectable="false" width="100%" paddingBottom="10" />
+			
+			<mx:TextArea id="ta_comment" width="100%" height="100%" maxChars="1024" maxHeight="500" />
+			
+			<mx:HBox width="100%" horizontalAlign="right">
+				
+				<mx:Label text="{ta_comment.maxChars - ta_comment.text.length} characters remaining" />
+				<mx:Spacer width="100%" />
+				
+				<mx:Button id="b_send" label="Send" click="sendEvent(SEND_FEEDBACK)" />
+				
+			</mx:HBox>
+		
+		</mx:Box>			
+		
+	
+	</mx:ViewStack>
+	
+</mx:Box>

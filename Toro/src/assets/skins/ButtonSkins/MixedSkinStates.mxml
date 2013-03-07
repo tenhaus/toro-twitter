@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GraphicBorderSkin xmlns:mx="http://www.adobe.com/2006/mxml"  
+	xmlns="http://www.degrafa.com/2007" added="initEffect();">
+	
+	<mx:Script>
+		<![CDATA[
+			
+			[Bindable]
+			private var awidth:Number=0;
+			
+			[Bindable]
+			private var aheight:Number=0;
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void{
+				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+				awidth = unscaledWidth;
+				aheight = unscaledHeight;
+			}
+	
+	/*Animate on over state-*/
+
+			private function initEffect():void{
+          		if(name == "overSkin"){
+          			overEffect.play();
+          		}
+          		if(name == "downSkin"){
+          			mover();
+          		}
+          	}
+          	
+          	import caurina.transitions.*;
+			
+			import mx.core.IUIComponent;
+            import mx.core.BitmapAsset;
+            import mx.core.IFlexDisplayObject;
+			
+			public function mover():void
+			{
+				Tweener.addTween(dot1, {centerX:Math.random()*awidth,
+												centerY:Math.random()*aheight,
+												time:.5,
+												onComplete:mover});
+				Tweener.addTween(dot2, {centerX:Math.random()*awidth,
+												centerY:Math.random()*aheight,
+												time:.5,
+												onComplete:mover});
+				Tweener.addTween(dot3, {centerX:Math.random()*awidth,
+												centerY:Math.random()*aheight,
+												time:.5,
+												onComplete:mover});
+				Tweener.addTween(dot4, {centerX:Math.random()*awidth,
+												centerY:Math.random()*aheight,
+												time:.5,
+												onComplete:mover});
+				Tweener.addTween(dot5, {centerX:Math.random()*awidth,
+												centerY:Math.random()*aheight,
+												time:.5,
+												onComplete:mover});
+				Tweener.addTween(dot6, {centerX:Math.random()*awidth,
+												centerY:Math.random()*aheight,
+												time:.5,
+												onComplete:mover});								
+			}
+          	
+		]]>
+	</mx:Script>
+	
+	<mx:Parallel id="overEffect" effectEnd="initEffect();">
+		<mx:AnimateProperty 
+			target="{overFill}"
+			property="angle"
+	 		fromValue="0"
+	 		toValue="360"
+	 		duration="1200"/>
+	 		
+	 	<mx:Sequence>
+	 		<mx:AnimateProperty 
+			target="{WhiteStroke}"
+			property="weight"
+	 		fromValue="1"
+	 		toValue="6"
+	 		duration="600"/>
+	 		<mx:AnimateProperty 
+			target="{WhiteStroke}"
+			property="weight"
+	 		fromValue="6"
+	 		toValue="1"
+	 		duration="600"/>
+	 	</mx:Sequence>
+	 	
+	</mx:Parallel>
+	
+	
+	 	
+	
+	<!--Degrafa Drawing Code-->
+	 
+	<fills>
+		<LinearGradientFill id="upFill" angle="90" >
+			<GradientStop ratio="0" alpha="1" color="#EE9819"/>
+			<GradientStop ratio="1" alpha="1" color="#FAE38F"/>
+		</LinearGradientFill>
+	
+		<LinearGradientFill id="overFill" angle="90" >
+			<GradientStop ratio="0" alpha="1" color="#8EB3E7"/>
+			<GradientStop ratio="1" alpha="1" color="#DCEBFE"/>
+		</LinearGradientFill>
+		
+		<LinearGradientFill id="downFill" angle="-90" >
+			<GradientStop ratio="0" alpha="1" color="#8EB3E7"/>
+			<GradientStop ratio="1" alpha="1" color="#DCEBFE"/>
+		</LinearGradientFill>
+		
+		<BitmapFill id="BitmapFill" source="@Embed('assets/images/pattern_136.gif')"/>
+		
+		<LinearGradientFill id="WashFill" angle="90" >
+			<GradientStop ratio="0" alpha="1" color="#FFFFFF"/>
+			<GradientStop ratio="1" alpha="0" color="#FFFFFF"/>
+		</LinearGradientFill>
+		
+		<SolidFill id="GreyFill" color="#000" alpha=".6"/>
+	</fills>
+	
+	<strokes>
+		<SolidStroke color="#EE9819" alpha="1" id="BasicStroke" />
+		<SolidStroke color="#FFF" alpha="1" id="WhiteStroke" weight="1" pixelHinting="true" joints="round"/>
+	</strokes>
+	
+	<geometry>
+		
+		<!--All states background-->
+		<RoundedRectangleComplex height="{aheight}" width="{awidth}" bottomLeftRadius="5" 
+			bottomRightRadius="5" topLeftRadius="5" topRightRadius="5" stroke="{WhiteStroke}">
+			<fill>
+		 		<SolidFill id="backFill" alpha="1" color="#FFF"/>
+			</fill>
+		</RoundedRectangleComplex>
+				 
+		<!--upSkin State-->		
+		<GeometryComposition state="upSkin" >
+			<RoundedRectangleComplex x="1" y="1" height="{aheight-2}" width="{awidth-2}"
+			bottomLeftRadius="5" bottomRightRadius="5"
+			topLeftRadius="5" topRightRadius="5" fill="{upFill}"/>
+		</GeometryComposition>
+		
+		<!--overSkin State-->		
+		<GeometryComposition state="overSkin">
+			<RoundedRectangleComplex x="2" y="2" height="{aheight-4}" width="{awidth-4}"
+			bottomLeftRadius="5" bottomRightRadius="5"
+			topLeftRadius="5" topRightRadius="5" fill="{overFill}"/>
+		</GeometryComposition>
+		
+		<!--downSkin State-->		
+		<GeometryComposition state="downSkin">
+			<RoundedRectangleComplex x="1" y="1" height="{aheight-2}" width="{awidth-2}"
+			bottomLeftRadius="5" bottomRightRadius="5"
+			topLeftRadius="5" topRightRadius="5" fill="{downFill}"/>
+			<Circle id="dot1" fill="{GreyFill}" radius="2"/>
+			<Circle id="dot2" fill="{GreyFill}" radius="{dot1.radius}"/>
+			<Circle id="dot3" fill="{GreyFill}" radius="{dot1.radius}"/>
+			<Circle id="dot4" fill="{GreyFill}" radius="{dot1.radius}"/>
+			<Circle id="dot5" fill="{GreyFill}" radius="{dot1.radius}"/>
+			<Circle id="dot6" fill="{GreyFill}" radius="{dot1.radius}"/>
+		</GeometryComposition>
+		
+		<!--upSkin Event State-->		
+		<GeometryComposition state="upEventSkin">
+			<RoundedRectangleComplex x="1" y="1" height="{aheight-2}" width="{awidth-2}"
+			bottomLeftRadius="5" bottomRightRadius="5"
+			topLeftRadius="5" topRightRadius="5" fill="{BitmapFill}"/>
+		</GeometryComposition>
+		
+		<!--All states white wash-->
+		<RoundedRectangleComplex x="0" y="0" bottomLeftRadius="0" bottomRightRadius="0" 
+			topLeftRadius="5" topRightRadius="5" height="20" width="{awidth}" fill="{WashFill}"/>
+		
+		
+	</geometry>
+	
+	
+			
+</GraphicBorderSkin>

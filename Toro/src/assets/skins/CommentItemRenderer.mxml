@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dg:GraphicBorderSkin xmlns:mx="http://www.adobe.com/2006/mxml"
+		  			  xmlns:dg="http://www.degrafa.com/2007">
+	
+	<mx:Script>
+		<![CDATA[
+			
+			[Bindable]
+			private var awidth : Number = 0;
+			
+			[Bindable]
+			private var aheight : Number = 0;
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+			{
+				super.updateDisplayList( unscaledWidth, unscaledHeight );
+				
+				awidth = unscaledWidth;
+				aheight = unscaledHeight;
+				
+				var glow:GlowFilter = new GlowFilter();
+				glow.color = 0x000000;
+				glow.alpha = 1;
+				glow.strength = .75;
+				glow.quality = BitmapFilterQuality.MEDIUM;
+				
+				glow.blurX = 4;
+				glow.blurY = 4;
+				
+				this.filters = [glow];
+				
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<dg:SolidStroke id="mainStroke" alpha="1" color="#000000" caps="square" weight="1" />
+	<dg:SolidFill  alpha="1" color="#ffffff" />
+	
+	<dg:LinearGradientFill id="mainFill" angle="90">		
+		<dg:GradientStop color="#666666" />
+		<dg:GradientStop color="#1a1a1a" />
+	</dg:LinearGradientFill>
+    
+    <dg:LinearGradientFill id="washFill" angle="90">
+        <dg:GradientStop ratio="0" alpha=".75" color="#333333" />
+        <dg:GradientStop ratio="1" alpha="0" color="#444444" />
+    </dg:LinearGradientFill>
+        
+	<dg:geometry>		
+		<dg:RoundedRectangle width="{awidth}" height="{aheight}" fill="{mainFill}" cornerRadius="5" />
+		
+		<!--
+		<dg:RegularRectangle width="{awidth}" height="{aheight}" fill="{mainFill}" />		
+		<dg:RegularRectangle x="1" y="1" width="5" height="{aheight - 2}" fill="{washFill}" />
+		-->				
+	</dg:geometry>
+	
+</dg:GraphicBorderSkin>

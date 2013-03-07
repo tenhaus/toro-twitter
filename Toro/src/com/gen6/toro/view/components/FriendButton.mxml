@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<code:CanvasButton xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   xmlns:code="http://code.google.com/p/flexlib/"
+		   width="26" height="26" xmlns:controls="qs.controls.*"
+		   click="handleClick()" toolTip="{friend.screenName}">		   
+	
+	<mx:Script>
+		<![CDATA[
+		
+			import com.gen6.toro.events.FriendSelectedEvent;
+			
+			import twitter.api.data.TwitterUser;
+			
+			public static const FRIEND_SELECTED : String = "friend_selected";
+			
+			[Bindable]
+			public var friend : TwitterUser;
+			
+			public override function set data(value:Object):void
+			{
+				super.data = value;
+				friend = value as TwitterUser;				
+			}
+			
+			private function handleClick() : void
+			{
+				var event : FriendSelectedEvent = new FriendSelectedEvent( FRIEND_SELECTED, friend );
+				dispatchEvent( event );
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Box width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
+		<controls:SuperImage width="24" height="24" source="{friend.profileImageUrl}" />
+	</mx:Box>
+	
+</code:CanvasButton>

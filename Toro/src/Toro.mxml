@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" 
+						xmlns:components="com.gen6.toro.view.components.*"
+						layout="absolute" title="Toro - Beta"					
+						applicationComplete="init()"
+						backgroundColor="#ededed" 
+						themeColor="#ededed"
+						creationPolicy="all">
+	
+	<mx:Style source="/assets/style.css" />
+	
+	<mx:Script>
+		<![CDATA[
+			import qs.caching.ContentCache;
+			import mx.controls.Image;
+			import mx.controls.Alert;
+			import air.update.ApplicationUpdaterUI;
+			import air.update.events.UpdateEvent;
+			import com.gen6.toro.ApplicationFacade;
+			
+			public static var FEED_BACK_VIEW_CREATED : String = "feed_back_view_created";
+			
+			private var facade : ApplicationFacade = ApplicationFacade.getInstance();
+			private var appUpdater : ApplicationUpdaterUI = new ApplicationUpdaterUI();
+			
+			private var startCommand:NativeMenuItem = new NativeMenuItem("Start");
+			private var pauseCommand:NativeMenuItem = new NativeMenuItem("Pause");
+			private var showCommand: NativeMenuItem = new NativeMenuItem("Show clock");
+			
+			private var _iconLoader : Loader;
+			private var _dockImage : BitmapData;
+			
+			//private var _memoryTimer : Timer = new Timer( 1000 * 60 );
+			
+			private function init() : void
+			{	
+				facade.startup( this );
+				checkForUpdate();
+				
+				_iconLoader = new Loader();
+				_iconLoader.contentLoaderInfo.addEventListener( Event.COMPLETE, handleIconLoadComplete, false, 0, true );
+				_iconLoader.load( new URLRequest( "assets/icons/toroicon_128.png" ) );
+				
+				if( NativeApplication.supportsDockIcon )
+				{
+				    var dockIcon : DockIcon = NativeApplication.nativeApplication.icon as DockIcon;
+				    NativeApplication.nativeApplication.addEventListener( InvokeEvent.INVOKE, undock, false, 0, true );				    
+				} 
+				else if( NativeApplication.supportsSystemTrayIcon )
+				{
+				    var sysTrayIcon:SystemTrayIcon = NativeApplication.nativeApplication.icon as SystemTrayIcon;
+				    sysTrayIcon.tooltip = "Toro for Twitter";
+				    sysTrayIcon.addEventListener( MouseEvent.CLICK, undock, false, 0, true );
+				}
+				
+				stage.nativeWindow.addEventListener( NativeWindowDisplayStateEvent.DISPLAY_STATE_CHANGING, dock, false, 0, true ); //Catch the minimize event 
+			}
+		
+			private function handleIconLoadComplete( event : Event ) : void
+			{				
+				_dockImage = event.target.content.bitmapData;				
+			}
+			
+			public function dock( event:NativeWindowDisplayStateEvent = null ) : void
+			{
+				if( event != null )
+				{
+					if( event.afterDisplayState == NativeWindowDisplayState.MINIMIZED ) 
+					{
+						NativeApplication.nativeApplication.icon.bitmaps = [_dockImage];
+				    	stage.nativeWindow.visible = false;
+				    	event.preventDefault();
+				 	}
+				}			    
+			}
+			
+			public function undock(event:Event = null) : void
+			{
+			    stage.nativeWindow.visible = true;
+			    NativeApplication.nativeApplication.icon.bitmaps = [];
+			}
+
+			public function setLoginSuccess() : void
+			{
+				vs_main.selectedChild = commentView;
+			}
+			
+			private function checkForUpdate():void 
+			{
+				NativeApplication.nativeApplication.addEventListener( Event.EXITING, 
+					function( e : Event ) : void 
+					{
+						var opened:Array = NativeApplication.nativeApplication.openedWindows;
+						for (var i:int = 0; i < opened.length; i ++)
+						{
+							opened[i].close();
+						}
+				});	
+		
+				setApplicationVersion();
+				
+				appUpdater.updateURL = "http://www.gen-6.com/toro/release/update.xml";
+				appUpdater.isCheckForUpdateVisible = false;
+				appUpdater.addEventListener( UpdateEvent.INITIALIZED, onUpdate, false, 0, true );
+				appUpdater.addEventListener( ErrorEvent.ERROR, onError, false, 0, true );
+				appUpdater.initialize();
+			}
+		
+			private function onError( event : ErrorEvent ) : void
+			{
+				Alert.show(event.toString());
+			}
+			
+			private function onUpdate( event : UpdateEvent ) : void
+			{
+				appUpdater.checkNow();
+			}
+			
+			private function setApplicationVersion() : void
+			{				
+				var appXML : XML = NativeApplication.nativeApplication.applicationDescriptor;
+				var ns:Namespace = appXML.namespace();				
+			}
+			
+			private function broadcastCreation( name : String ) : void
+			{
+				dispatchEvent( new Event(name) );
+			}
+			
+		]]>
+	</mx:Script>
+		
+	<mx:ViewStack id="vs_main" width="100%" height="100%">
+				
+		<components:MainView id="commentView" width="100%" height="100%" />
+		
+		<components:FeedBackView id="feedBackView" width="100%" height="100%" 
+			creationComplete="broadcastCreation(FEED_BACK_VIEW_CREATED)" />
+		
+		<components:SettingsView id="settingsview" width="100%" height="100%" />			
+		
+	</mx:ViewStack>
+	
+	
+</mx:WindowedApplication>

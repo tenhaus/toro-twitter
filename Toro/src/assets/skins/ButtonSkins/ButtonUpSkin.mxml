@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GraphicBorderSkin xmlns:mx="http://www.adobe.com/2006/mxml"  
+	xmlns="http://www.degrafa.com/2007">
+	
+	
+	<mx:Script>
+		<![CDATA[
+			
+			[Bindable]
+			private var awidth : Number=0;
+			
+			[Bindable]
+			private var aheight : Number=0;			
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number) : void
+			{				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+				awidth = unscaledWidth;
+				aheight = unscaledHeight;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<fills>
+		<LinearGradientFill id="MainFill" angle="90" >
+			<GradientStop ratio="0" alpha="1" color="#333333"/>
+			<GradientStop ratio="1" alpha="1" color="#333333"/>
+		</LinearGradientFill>
+	
+		<LinearGradientFill id="WashFill" angle="90" >
+			<GradientStop ratio="0" alpha="1" color="#666666"/>
+			<GradientStop ratio="1" alpha="0" color="#666666"/>
+		</LinearGradientFill>
+		<!--
+		<LinearGradientFill id="MainFill" angle="90" >
+			<GradientStop ratio="0" alpha="1" color="#212729"/>
+			<GradientStop ratio="1" alpha="1" color="#424747"/>
+		</LinearGradientFill>
+	
+		<LinearGradientFill id="WashFill" angle="90" >
+			<GradientStop ratio="0" alpha="1" color="#333333"/>
+			<GradientStop ratio="1" alpha="0" color="#333333"/>
+		</LinearGradientFill>
+		-->
+		
+	</fills>
+	
+	<stroke>
+		<SolidStroke color="#EE9819" alpha="1" id="BasicStroke" />
+	</stroke>
+	
+	<geometry>
+		<RegularRectangle height="{aheight}" width="{awidth}"  fill="{MainFill}" />
+		<RegularRectangle x="0" y="0" height="20" width="{awidth}" fill="{WashFill}" />		 
+	</geometry>
+	
+</GraphicBorderSkin>

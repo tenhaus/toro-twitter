@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   xmlns:controls="qs.controls.*"> 
+		   
+	<mx:Script>
+		<![CDATA[
+			import twitter.api.data.TwitterUser;
+			
+			[Bindable]
+			private var _friend : TwitterUser;
+			
+			private function get calculatedHeight() : Number
+			{
+				trace( t_name.height+t_description.height+20 );
+				return( t_name.height+t_description.height+20 );
+			}
+			
+			override public function set data( value : Object ) : void
+			{
+				super.data = value;
+				_friend = value as TwitterUser;
+				
+				//t_name.validateNow();
+				//t_description.validateNow();
+				/*
+				if( t_description.height + t_name.height > 0 )
+				{
+					height = img_avatar + t_description.height + t_name.height + 10;
+				}
+				else
+				{
+					height = img_avatar.height + 10;
+				}
+				*/
+				invalidateSize();
+				
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:HBox id="main_box" width="100%" minHeight="58">
+	
+		<controls:SuperImage id="img_avatar" source="{_friend.profileImageUrl}" height="48" width="48" />
+		
+		<mx:Box width="100%" verticalGap="0">
+			<mx:Text id="t_name" width="100%" htmlText="&lt;b&gt;{_friend.screenName}&lt;/b&gt; {_friend.location}" />
+			<mx:Text id="t_description" width="100%" text="{_friend.description}" />
+		</mx:Box>
+		
+	</mx:HBox>
+	<!--
+	<mx:Text width="100%" text="{_friend.screenName}" selectable="false" />
+	<mx:Text text="{_friend.location}" />
+	-->
+	
+</mx:Box>

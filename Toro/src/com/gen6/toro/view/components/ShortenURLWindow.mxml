@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+		title="Shrink a Link" modalTransparencyColor="#1a1a1a"
+		borderStyle="none" xmlns:code="http://code.google.com/p/flexlib/"
+		creationComplete="init()">
+	
+	<mx:Script>
+		<![CDATA[
+			import flexlib.scheduling.Timeline;
+			import mx.managers.PopUpManager;
+			
+			public static const SHRINK_URL : String = "shrink_url";
+			
+			[Bindable]
+			private var _showingError : Boolean;
+			
+			private var _errorTimer : Timer = new Timer( 1000 * 3 );
+			
+			private function init() : void
+			{
+				_errorTimer.addEventListener( TimerEvent.TIMER, handleErrorTimerTick );				
+			}
+			
+			private function shrinkUrl() : void
+			{
+				dispatchEvent( new Event(SHRINK_URL) );
+			}
+			
+			public function setFailure() : void
+			{
+				_showingError = true;
+				_errorTimer.start();							
+			}
+			
+			private function handleErrorTimerTick( event : Event ) : void
+			{
+				_showingError = false;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Box width="100%" horizontalGap="1">
+		
+		<mx:Box width="100%" backgroundColor="#ff0000" includeInLayout="{_showingError}" visible="{_showingError}">
+			<mx:Label color="#ffffff" fontWeight="bold" text="Failed to contact server." />
+		</mx:Box>
+		
+		<code:PromptingTextInput prompt="link to shrink" id="t_longUrl" width="300" enter="shrinkUrl()" />
+		
+		<mx:HBox width="100%" horizontalAlign="center">	
+		
+			<mx:ComboBox id="cb_shrinkProvider">		
+				<mx:dataProvider>
+					<mx:Array>
+						<mx:Object label="tinyurl" data="tinyurl" />
+						<mx:Object label="srnk.net" data="srnk.net" />							
+						<mx:Object label="bit.ly" data="bit.ly" />
+						<mx:Object label="lin.cr" data="lin.cr" />						
+						<!--
+						<mx:Object label="is.gd" data="is.gd" />
+						<mx:Object label="snipurl" data="snipurl" />
+						<mx:Object label="hex.io" data="hex.io" />
+						-->
+					</mx:Array>
+				</mx:dataProvider>
+			</mx:ComboBox>
+			
+			<mx:Spacer width="100%" />
+			
+			<mx:LinkButton label="cancel" click="PopUpManager.removePopUp(this)" />
+			
+			<mx:Button label="shrink!" click="shrinkUrl()" />
+			
+		</mx:HBox>
+		
+	</mx:Box>	
+	
+</mx:TitleWindow>

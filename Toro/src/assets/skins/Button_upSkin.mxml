@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dg:GraphicBorderSkin xmlns:mx="http://www.adobe.com/2006/mxml"
+		  			  xmlns:dg="http://www.degrafa.com/2007"> 
+	
+	<mx:Script>
+		<![CDATA[
+			
+			[Bindable]
+			private var awidth : Number = 0;
+			
+			[Bindable]
+			private var aheight : Number = 0;
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+			{
+				super.updateDisplayList( unscaledWidth, unscaledHeight );
+				awidth = unscaledWidth;
+				aheight = unscaledHeight;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<dg:SolidStroke id="mainStroke" alpha="1" color="#ffffff" caps="round" weight="1" />
+	
+	<dg:SolidFill id="mainFill" alpha="1" color="#333333" />
+
+	<dg:LinearGradientFill id="upFill" angle="90" >
+        <dg:GradientStop ratio="0" alpha="1" color="#666666" />
+        <dg:GradientStop ratio=".5" alpha="1" color="#333333" />
+        <dg:GradientStop ratio=".5" alpha="1" color="#000000" />
+        <dg:GradientStop ratio="1" alpha="1" color="#666666" />
+    </dg:LinearGradientFill>
+	
+	<dg:LinearGradientFill id="circleFill" angle="90" >
+        <dg:GradientStop ratio="0" alpha="1" color="#EE9819"/>
+        <dg:GradientStop ratio="1" alpha="1" color="#FF8000"/>
+    </dg:LinearGradientFill>
+	
+	<dg:LinearGradientFill id="washFill" angle="90" >
+        <dg:GradientStop ratio="0" alpha=".75" color="#FFFFFF"/>
+        <dg:GradientStop ratio="1" alpha="0" color="#FFFFFF"/>
+    </dg:LinearGradientFill>
+        
+	<dg:geometry>
+	
+		<dg:RegularRectangle width="{awidth}" height="{aheight}"  fill="{mainFill}" />
+		<!--
+		<dg:Circle id="circle" centerX="10" centerY="{aheight/2}" radius="{aheight/4}" fill="{circleFill}" stroke="{mainStroke}" />
+		<dg:Ellipse width="{circle.radius*2}" height="{circle.radius}" x="{circle.centerX-circle.radius}" 
+					y="{circle.centerY - circle.radius}" fill="{washFill}" />
+		-->
+		
+	</dg:geometry>
+	
+	
+	
+</dg:GraphicBorderSkin>

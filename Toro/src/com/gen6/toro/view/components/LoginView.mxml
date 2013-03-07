@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				modalTransparencyColor="#1a1a1a"
+				modalTransparency="1"
+				title="Twitter Login"
+				titleStyleName="loginHeader"							
+				cornerRadius="10"
+				borderStyle="none">
+				
+	
+	<mx:Script>
+		<![CDATA[
+			import com.gen6.toro.entity.LoginVO;
+			
+			public static const LOGIN_REQUESTED : String = "login_requested";
+			
+			[Bindable]
+			public var loginVO : LoginVO = new LoginVO();
+			
+			[Bindable]
+			private var _errorVisible : Boolean;
+			
+			[Bindable]
+			private var _errorText : String = "Login Error";
+			
+			public function setLoginFailed() : void
+			{
+				//_errorText = "Invalid username or password";
+				_errorVisible = true;
+				progress_login.visible = false;
+			}
+			
+			public function setLoginError() : void
+			{
+				//_errorText = "Error contacting Twitter";
+				_errorVisible = true;
+				progress_login.visible = false;				
+			}
+			
+			private function handleLoginClick() : void
+			{
+				progress_login.visible = true;
+				_errorVisible = false;
+				dispatchEvent( new Event( LOGIN_REQUESTED ) );
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Binding source="t_username.text" destination="loginVO.username" />
+	<mx:Binding source="t_password.text" destination="loginVO.password" />
+	<mx:Binding source="cb_saveUserInfo.selected" destination="loginVO.saveUserInfo" />
+	
+	<mx:Box width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">		
+	
+		<mx:Form>
+			
+			<mx:FormItem visible="{_errorVisible}" includeInLayout="{_errorVisible}">
+				<mx:Label id="lbl_error" text="{_errorText}" />			
+			</mx:FormItem>
+			
+			<mx:FormItem label="username">
+				<mx:TextInput id="t_username" text="{loginVO.username}" 
+							  enter="handleLoginClick()" />
+			</mx:FormItem>
+			
+			<mx:FormItem label="password">
+				<mx:TextInput id="t_password" text="{loginVO.password}" 
+							  displayAsPassword="true" enter="handleLoginClick()" />
+			</mx:FormItem>
+			
+			<mx:FormItem>
+				<mx:CheckBox id="cb_saveUserInfo" label="remember" selected="{loginVO.saveUserInfo}" />
+			</mx:FormItem>
+			
+			<mx:FormItem horizontalAlign="right" width="100%">
+				<mx:Button label="login" click="handleLoginClick()" />
+			</mx:FormItem>
+			
+		</mx:Form>
+		
+	</mx:Box>
+	
+	<mx:ProgressBar id="progress_login" width="100%" label="" height="5" indeterminate="true" themeColor="#018ee8" visible="false" />
+	
+</mx:TitleWindow>

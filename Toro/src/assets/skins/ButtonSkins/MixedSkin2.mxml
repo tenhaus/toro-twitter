@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GraphicBorderSkin xmlns:mx="http://www.adobe.com/2006/mxml"  
+	xmlns="http://www.degrafa.com/2007" xmlns:effects="com.darronschall.effects.*"
+	  added="initListeners();">
+	
+	<mx:Script>
+		<![CDATA[
+			//this is the kind of stuff that event state will get ride of.
+			private function initListeners():void{
+				
+				if(name=="upSkin" || name=="overSkin" || name =="downSkin"){
+					parent.addEventListener(MouseEvent.ROLL_OVER, onMouseOver);
+					parent.addEventListener(MouseEvent.ROLL_OUT, onMouseOut);
+					
+				}
+				
+				if(name=="overSkin"){
+					colorChange1.play();
+					colorChange2.play();
+					colorChange5.play();
+				}
+				
+			}
+			
+			private function onMouseOver(event:MouseEvent):void{
+				colorChange1.play();
+				colorChange2.play();
+				colorChange5.play();
+			}
+			
+			private function onMouseOut(event:MouseEvent):void{
+				colorChange3.play();
+				colorChange4.play();
+				colorChange6.play();
+			}
+			
+			[Bindable]
+			private var awidth:Number;
+			
+			[Bindable]
+			private var aheight:Number;
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void{
+				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+				awidth = unscaledWidth;
+				aheight = unscaledHeight;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<effects:AnimateColor id="colorChange1" target="{prop1}" property="color" fromValue="0xEE9819" toValue="0x8EB3E7"  />
+	<effects:AnimateColor id="colorChange2" target="{prop2}" property="color" fromValue="0xFAE38F" toValue="0xDCEBFE"  />
+	<effects:AnimateColor id="colorChange5" target="{backFill}" property="color" fromValue="{0xFFFFFF}" toValue="0xFAE38F"  />
+	
+	<effects:AnimateColor id="colorChange3" target="{prop1}" property="color" fromValue="{uint(prop1.color)}" toValue="0xEE9819"  />
+	<effects:AnimateColor id="colorChange4" target="{prop2}" property="color" fromValue="{uint(prop2.color)}" toValue="0xFAE38F"  />
+	<effects:AnimateColor id="colorChange6" target="{backFill}" property="color" fromValue="{uint(backFill.color)}" toValue="0xFFFFFF"  />
+		
+	<fills>
+		<LinearGradientFill id="upFill" angle="90" >
+			<GradientStop id="prop1" ratio="0" alpha="1" color="#EE9819"/>
+			<GradientStop id="prop2" ratio="1" alpha="1" color="#FAE38F"/>
+		</LinearGradientFill>
+		
+		<LinearGradientFill id="downFill" angle="90" >
+			<GradientStop id="prop3" ratio="0" alpha="1" color="#005a31"/>
+			<GradientStop id="prop4" ratio="1" alpha="1" color="#00ff06"/>
+		</LinearGradientFill>
+					
+		<LinearGradientFill id="WashFill" angle="90" >
+			<GradientStop ratio="0" alpha="1" color="#FFFFFF"/>
+			<GradientStop ratio="1" alpha="0" color="#FFFFFF"/>
+		</LinearGradientFill>
+	</fills>
+	
+	<stroke>
+		<SolidStroke color="#EE9819" alpha="1" id="BasicStroke" />
+	</stroke>
+	
+	<geometry>
+		
+		<!--All states background-->
+		<RoundedRectangleComplex height="{aheight}" width="{awidth}" bottomLeftRadius="5" 
+			bottomRightRadius="5" topLeftRadius="5" topRightRadius="5">
+			<fill>
+		 		<SolidFill id="backFill" alpha="1" color="#FFF"/>
+			</fill>
+			
+		</RoundedRectangleComplex>
+				 
+		<!--upSkin State-->		
+		<RoundedRectangleComplex state="upSkin" x="1" y="1" height="{aheight-2}" 
+			width="{awidth-2}" bottomLeftRadius="5" bottomRightRadius="5" topLeftRadius="5" 
+			topRightRadius="5" fill="{upFill}">
+		</RoundedRectangleComplex>
+		
+		<RoundedRectangleComplex state="overSkin" x="1" y="1" height="{aheight-2}" 
+			width="{awidth-2}" bottomLeftRadius="5" bottomRightRadius="5" topLeftRadius="5" 
+			topRightRadius="5" fill="{upFill}">
+		</RoundedRectangleComplex>
+		
+		<RoundedRectangleComplex state="downSkin" x="1" y="1" height="{aheight-2}" 
+			width="{awidth-2}" bottomLeftRadius="5" bottomRightRadius="5" topLeftRadius="5" 
+			topRightRadius="5" fill="{downFill}">
+		</RoundedRectangleComplex>
+				
+		<!--All states white wash-->
+		<RoundedRectangleComplex x="0" y="0" bottomLeftRadius="0" bottomRightRadius="0" 
+			topLeftRadius="5" topRightRadius="5" height="20" width="{awidth}" fill="{WashFill}"/>
+		
+		
+	</geometry>
+	
+	
+			
+</GraphicBorderSkin>

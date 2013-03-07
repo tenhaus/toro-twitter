@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GraphicBorderSkin xmlns:mx="http://www.adobe.com/2006/mxml"  
+	xmlns="http://www.degrafa.com/2007" xmlns:effects="com.darronschall.effects.*"
+	  addedToStage="initListeners();" removedFromStage="clearListener();">
+	
+	<mx:Script>
+		<![CDATA[
+				
+			[Bindable]
+			private var oldColor1:uint;
+			
+			[Bindable]
+			private var oldColor2:uint;
+			
+			[Bindable]
+			private var newColor1:uint;
+			
+			[Bindable]
+			private var newColor2:uint;
+			
+			
+			private var parentRect:Rectangle;
+			
+			private var whiteHot:Rectangle;
+			private var hotRect:Rectangle;
+			private var warmRect:Rectangle;
+			private var coldRect:Rectangle;
+			
+			//this is the kind of stuff that event state will get ride of.
+			private function initListeners():void{
+				if(name=="upSkin"){
+					parent.stage.addEventListener(MouseEvent.MOUSE_MOVE, onStageMouseMove);
+				}
+			}
+			
+			private function clearListener():void{
+				if(name=="upSkin"){
+					parent.stage.removeEventListener(MouseEvent.MOUSE_MOVE, onStageMouseMove);
+				}
+				
+			}
+			
+			private var currentState:String="cold";
+			
+			private function onStageMouseMove(event:MouseEvent):void{
+				
+				initProximityRanges();
+				
+				//test intersection
+				if(parentRect.contains(event.stageX,event.stageY)){
+					
+					if(currentState != "isOver"){
+						oldColor1= prop1.color as uint;
+						oldColor2= prop2.color as uint;
+						newColor1= 0xff0000;
+						newColor2= 0xff0000;
+						
+						currentState = "isOver";
+						
+						colorChange1.play();
+						colorChange2.play();
+					}
+										
+					return;
+				}	
+				
+				if(whiteHot.contains(event.stageX,event.stageY)){
+					if(currentState != "whiteHot"){
+						oldColor1= prop1.color as uint;
+						oldColor2= prop2.color as uint;
+						newColor1= 0xff0000;
+						newColor2= 0xFFAA00;
+						
+						currentState = "whiteHot";
+						
+						colorChange1.play();
+						colorChange2.play();
+					}
+										
+					return;
+				}
+				
+				if(hotRect.contains(event.stageX,event.stageY)){
+					if(currentState != "hot"){
+						oldColor1= prop1.color as uint;
+						oldColor2= prop2.color as uint;
+						
+						newColor1= 0xff0000;
+						newColor2= 0xFFFF00;
+						
+						currentState = "hot";
+						
+						colorChange1.play();
+						colorChange2.play();
+					}
+										
+					return;
+				}
+				
+				if(warmRect.contains(event.stageX,event.stageY)){
+					if(currentState != "warm"){
+						oldColor1= prop1.color as uint;
+						oldColor2= prop2.color as uint;
+						newColor1= 0xEE9819;
+						newColor2= 0xFAE38F;
+						
+						currentState = "warm";
+						
+						colorChange1.play();
+						colorChange2.play();
+					}
+										
+					return;
+				}
+				
+				if(coldRect.contains(event.stageX,event.stageY)){
+					if(currentState != "cold"){
+						oldColor1= prop1.color as uint;
+						oldColor2= prop2.color as uint;
+						newColor1= 0x8EB3E7;
+						newColor2= 0xDCEBFE;
+						
+						currentState = "cold";
+						
+						colorChange1.play();
+						colorChange2.play();
+						
+					}
+					
+					return;
+				}
+				
+				
+								
+			}
+						
+			private function initProximityRanges():void{
+				
+				//get out parent rect
+				parentRect = parent.getBounds(parent.stage);
+				
+				//inflate that for each range
+				//whitehot range
+				whiteHot = parentRect.clone();
+				whiteHot.inflate(50,50);
+				
+				//hot range
+				hotRect = parentRect.clone();
+				hotRect.inflate(150,150);
+				
+				//warm range
+				warmRect = parentRect.clone();
+				warmRect.inflate(300,300);
+					
+				//cold range
+				coldRect = parentRect.clone();
+				coldRect.inflate(500,500);
+				
+				
+			}
+						
+			[Bindable]
+			private var awidth:Number;
+			
+			[Bindable]
+			private var aheight:Number;
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void{
+				
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
+				awidth = unscaledWidth;
+				aheight = unscaledHeight;
+											
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<effects:AnimateColor id="colorChange1" target="{prop1}" property="color" fromValue="{oldColor1}" toValue="{newColor1}"  />
+	<effects:AnimateColor id="colorChange2" target="{prop2}" property="color" fromValue="{oldColor2}" toValue="{newColor2}"  />
+		
+	
+	<fills>
+		<LinearGradientFill id="fill1" angle="90" >
+			<GradientStop id="prop1" color="#8EB3E7"/>
+			<GradientStop id="prop2" color="#DCEBFE"/>
+		</LinearGradientFill>
+		
+		<LinearGradientFill id="fill2" angle="90" >
+			<GradientStop color="#ff0000"/>
+			<GradientStop color="#ff0000"/>
+		</LinearGradientFill>
+				
+		<LinearGradientFill id="WashFill" angle="90" >
+			<GradientStop ratio="0" alpha="1" color="#FFFFFF"/>
+			<GradientStop ratio="1" alpha="0" color="#FFFFFF"/>
+		</LinearGradientFill>
+	</fills>
+	
+	<stroke>
+		<SolidStroke color="#EE9819" alpha="1" id="BasicStroke" />
+	</stroke>
+	
+	<geometry>
+		
+		<!--All states background-->
+		<RoundedRectangleComplex id="back" height="{aheight}" width="{awidth}" bottomLeftRadius="5" 
+			bottomRightRadius="5" topLeftRadius="5" topRightRadius="5">
+			<fill>
+		 		<SolidFill id="backFill" alpha="1" color="#FFF"/>
+			</fill>
+			
+		</RoundedRectangleComplex>
+				 
+		<!--upSkin State-->		
+		<RoundedRectangleComplex state="upSkin" id="mainRect" x="1" y="1" height="{aheight-2}" 
+			width="{awidth-2}" bottomLeftRadius="5" bottomRightRadius="5" topLeftRadius="5" 
+			topRightRadius="5" fill="{fill1}">
+		</RoundedRectangleComplex>
+		
+		<RoundedRectangleComplex state="overSkin" x="1" y="1" height="{aheight-2}" 
+			width="{awidth-2}" bottomLeftRadius="5" bottomRightRadius="5" topLeftRadius="5" 
+			topRightRadius="5" fill="{fill2}">
+		</RoundedRectangleComplex>
+		
+				
+		<!--All states white wash-->
+		<RoundedRectangleComplex id="wash" x="0" y="0" bottomLeftRadius="0" bottomRightRadius="0" 
+			topLeftRadius="5" topRightRadius="5" height="20" width="{awidth}" fill="{WashFill}"/>
+		
+		
+	</geometry>
+	
+	
+			
+</GraphicBorderSkin>

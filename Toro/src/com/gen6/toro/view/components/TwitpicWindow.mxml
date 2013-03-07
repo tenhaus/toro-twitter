@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+		title="Upload a pic to Twitpic" modalTransparencyColor="#1a1a1a"
+		borderStyle="none" xmlns:code="http://code.google.com/p/flexlib/"
+		creationComplete="init()">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.gen6.toro.entity.TwitPicVO;
+			import com.gen6.toro.model.TwitterProxy;
+		
+		import mx.managers.PopUpManager;
+		
+		public var file : File;
+		
+		private var _errorTimer : Timer = new Timer( 1000 * 3 );
+		
+		[Bindable] private var _error : Boolean;
+		[Bindable] private var _uploading : Boolean;
+		
+		public static const UPLOAD_TO_TWITPIC : String = "upload_to_twitpic";
+	    
+	    
+	    private function init():void
+	    {
+	    	_errorTimer.addEventListener( TimerEvent.TIMER, handleErrorTimerTick );
+	    	//_file.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA,uploadDone);
+	    	_error = false;
+	    	_uploading = false;
+	    }
+	    
+	    private function getFile():void
+	    {
+	    	file = new File();
+	    	file.addEventListener(Event.SELECT, fileName);
+	    	file.browse( new Array( new FileFilter( "Images (*.jpg, *.jpeg, *.gif, *.png)", "*.jpg;*.jpeg;*.gif;*.png" ) ) );
+	    	
+	    }
+	    
+	    private function fileName(event : Event):void
+	    {
+	    	tp_fileName.text = file.name;
+	    }
+	    
+	    private function upload():void
+	    {
+            if(tp_fileName.text != "")
+            { 
+            _uploading = true;
+            dispatchEvent(new Event(UPLOAD_TO_TWITPIC));
+            }
+	    }
+	    
+	    public function uploadDone():void
+	    {
+	    	_uploading = false;
+	    	PopUpManager.removePopUp(this);
+	    }
+	    
+	    public function setFailed():void
+	    {
+	    	_uploading = false;
+	    	_error = true;
+	    	_errorTimer.start();
+	    }
+	    
+	    private function handleErrorTimerTick( event : Event ) : void
+		{
+			_error = false;
+		}
+	
+		]]>
+	</mx:Script>
+	
+	<mx:Box width="100%" horizontalGap="1">
+		
+		<mx:Box width="100%" backgroundColor="#ff0000" includeInLayout="{_error}" visible="{_error}">
+			<mx:Label color="#ffffff" fontWeight="bold" text="Failed to contact server." />
+		</mx:Box>
+		
+		
+		<mx:HBox width="100%">
+			<code:PromptingTextInput prompt="filename ..." id="tp_fileName" width="100%" editable="false" click="getFile()" />
+			
+			<mx:Button label="browse" click="getFile()" />
+		</mx:HBox>
+		<mx:Spacer height="10" />
+		<code:PromptingTextArea id="tp_comment" width="300" height="50" prompt="description ..." 
+			maxChars="140" themeColor="#ffffff" borderColor="#333333" 
+			focusAlpha="0" />
+		
+		<mx:HBox width="100%" horizontalAlign="center">	
+			
+			<mx:Spacer width="100%" />
+			
+			<mx:LinkButton label="cancel" click="PopUpManager.removePopUp(this)" />
+			
+			<mx:Button label="upload!" click="upload()" />
+			
+		</mx:HBox>
+		<mx:ProgressBar id="progress_twitpic" indeterminate="true" height="4" width="100%" themeColor="#018ee8" 
+		visible="{_uploading}" includeInLayout="{_uploading}" label="" />
+	</mx:Box>	
+	
+</mx:TitleWindow>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:code="http://code.google.com/p/flexlib/">
+	
+	<mx:Script>
+		<![CDATA[
+			
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			public var searchResults : ArrayCollection;
+			
+			public static const EVENT_SEARCH : String = "search";
+			
+			private function handleSearchClick() : void
+			{
+				dispatchEvent( new Event(EVENT_SEARCH) );
+			}
+			
+			public static const GET_PUBLIC_COMMENTS : String = "get_public_comments";
+			
+			public function set publicComments( value : ArrayCollection ) : void
+			{
+				l_publicData.dataProvider = value;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+	
+		<mx:HBox verticalAlign="middle" height="30" paddingLeft="10" width="100%">
+			
+			<!--<mx:TextInput id="t_query" enter="handleSearchClick()" />-->
+			<code:PromptingTextInput id="t_query" prompt="" enter="handleSearchClick()" />
+			<mx:Button click="handleSearchClick()" label="search" />
+			<mx:Button toggle="true" label="Show Public Tweets" />
+		</mx:HBox>
+		
+		<mx:ViewStack id="ss_views">
+			<mx:List id="dg_comments" width="100%" height="100%" dataProvider="{searchResults}" variableRowHeight="true" 
+				itemRenderer="com.gen6.toro.view.components.CommentItemRenderer"
+				alternatingItemColors="[#fafafa, #fafafa]" paddingBottom="0" paddingTop="0" />
+				
+			<mx:List id="l_publicData" width="100%" height="100%" variableRowHeight="true" 
+				itemRenderer="com.gen6.toro.view.components.CommentItemRenderer" 
+				alternatingItemColors="[#fafafa, #fafafa]" paddingBottom="0" paddingTop="0" />
+		</mx:ViewStack>
+	
+	</mx:VBox>
+	
+</mx:Box>

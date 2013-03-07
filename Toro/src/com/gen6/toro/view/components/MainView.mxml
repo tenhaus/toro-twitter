@@ -1,0 +1,608 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+		 xmlns:components="com.gen6.toro.view.components.*" 
+		 xmlns:flexlib="http://code.google.com/p/flexlib/" 
+		 horizontalGap="0" borderStyle="none"
+		 verticalGap="0"
+		 creationComplete="init()">		 
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.events.ListEvent;
+			import com.gen6.toro.entity.TwitPicVO;
+			import mx.formatters.SwitchSymbolFormatter;
+			import com.adobe.utils.ArrayUtil;
+			import com.gen6.toro.util.TwitterScrape;
+			import mx.events.ItemClickEvent;
+			import twitter.api.data.TwitterStatus;
+			import com.gen6.toro.entity.ShrinkUrlVO;
+			import mx.managers.PopUpManager;
+			import mx.core.UIComponent;
+		
+			import mx.collections.ArrayCollection;
+			import com.gen6.toro.events.FriendSelectedEvent;
+			import mx.controls.Image;
+			import twitter.api.data.TwitterUser;
+			import flexlib.controls.CanvasButton;
+			import org.puremvc.as3.patterns.observer.Notification;
+			
+			public static const USER_TIMELINE_MAX_COMMENTS : Number = 100;
+			public static const LOGOUT_SELECTED : String = "logout_seleected";			
+			public static const REQUEST_SEND_COMMENT : String = "request_send_comment";			
+			public static const SHOW_FEED_BACK : String = "show_feed_back";
+			public static const SHOW_SETTINGS : String = "show_settings";
+			public static const SHRINK_URL : String = "shrink_url";
+			public static const UPLOAD_TO_TWITPIC : String = "upload_to_twitpic";
+			
+			public static const EVENT_SEARCH : String = "search";
+			
+			public static const VIEW_USER : Number = 0;
+			public static const VIEW_PUBLIC : Number = 1;
+			public static const VIEW_REPLIES : Number = 2;
+			public static const VIEW_FRIENDS : Number = 3;
+			public static const VIEW_SEARCH : Number = 4;
+			
+			/* Public properties */
+			
+			[Bindable]
+			public var selectedFriend : TwitterUser;			
+			
+			public var shrinkVO : ShrinkUrlVO;
+			public var twitPicVO : TwitPicVO;
+			public var commentText : String;
+			
+			
+			/* Private properties */
+			
+			
+			[Bindable]
+			private var _showingInput : Boolean = true;
+			
+			[Bindable]
+			private var _othersShowing : Boolean;
+			
+			[Bindable]
+			private var _characterCountString : String = "140 characters remaining";
+			
+			[Bindable]
+			private var _userComments : ArrayCollection;
+			
+			[Bindable]
+			private var _publicComments : ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var _replies : ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var _searchResults : ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var _friends : ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var _followers : ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var _showingSearch : Boolean;
+			
+			[Bindable]
+			private var _showingFriends : Boolean;
+			
+			[Bindable]
+			private var _showingProgress : Boolean;
+			
+			private var _userProgressShowing : Boolean;
+			private var _publicProgressShowing : Boolean;
+			private var _repliesProgressShowing : Boolean;
+			private var _friendsProgressShowing : Boolean;
+			private var _searchProgressShowing : Boolean;
+			
+			public var retweetTextNum : Number = 0;
+			
+			
+			private var _shortenURLWindow : ShortenURLWindow;
+			private var _twitWindow : TwitpicWindow;
+			private var messageTimer : Timer = new Timer( 3000, 1 );
+			
+			private var commentFactory : ClassFactory = new ClassFactory( CommentItemRenderer );
+			private var friendFactory  : ClassFactory = new ClassFactory( FriendItemRenderer );
+		
+			private function init() : void
+			{					
+				messageTimer.addEventListener( TimerEvent.TIMER, handleMessageTimerTick );
+				mainList.dataProvider = _userComments;				
+			}
+			
+			public function setProgress( showing : Boolean, view : Number ) : void
+			{
+				switch( view )
+				{
+					case VIEW_USER :
+					
+						_userProgressShowing = showing;
+						if( navButtons.selectedIndex == VIEW_USER ) _showingProgress = showing;
+												
+						break;
+						
+					case VIEW_PUBLIC :
+						
+						_publicProgressShowing = showing;
+						if( navButtons.selectedIndex == VIEW_PUBLIC ) _showingProgress = showing;
+						break;	
+					
+					case VIEW_FRIENDS :
+					
+						_friendsProgressShowing = showing;	
+						if( navButtons.selectedIndex == VIEW_FRIENDS ) _showingProgress = showing;						
+						break;
+					
+					case VIEW_REPLIES :
+						
+						_repliesProgressShowing = showing;
+						if( navButtons.selectedIndex == VIEW_REPLIES ) _showingProgress = showing;						
+						break;
+						
+					case VIEW_SEARCH :
+					
+						_searchProgressShowing = showing;
+						if( navButtons.selectedIndex == VIEW_SEARCH ) _showingProgress = showing;
+						break;	
+				}				
+			}
+			
+			private function handleChangeView( event : ItemClickEvent ) : void
+			{
+				_showingSearch = false;
+				_showingFriends = false;				
+								
+				switch( event.item.data )
+				{
+					case "recent" :
+						mainList.dataProvider = _userComments;
+						_showingProgress = _userProgressShowing;
+						break;
+					
+					case "public" :
+						mainList.dataProvider = _publicComments;
+						_showingProgress = _publicProgressShowing;
+						break;
+					
+					case "replies" : 
+						mainList.dataProvider = _replies;
+						_showingProgress = _repliesProgressShowing;
+						break;
+					
+					case "search" : 
+						_showingSearch = true;
+						_showingProgress = _searchProgressShowing;
+						mainList.dataProvider = _searchResults;
+						break;
+					
+					case "friends" :						
+						_showingFriends = true;
+						_showingProgress = _friendsProgressShowing;
+						mainList.dataProvider = _friends;
+						
+						break;
+						
+					default :
+						break;
+				}
+			}
+			
+			private function handleChangeFriendView( event : ItemClickEvent ) : void
+			{
+				if( event.item.data == "friends" )
+				{
+					mainList.dataProvider = _friends;					
+				}
+				
+				if( event.item.data == "followers" )
+				{
+					mainList.dataProvider = _followers;
+				}			
+			}			
+			
+			/*  Section View Code */
+			
+			public function set userTimeline( value : ArrayCollection ) : void
+			{				
+				if( _userComments == null )
+				{					
+					_userComments = value;
+					if( navButtons.selectedIndex == 0 )
+					{
+						mainList.dataProvider = _userComments;
+					}
+										
+					return;
+				}
+				
+				
+				for each( var comment : TwitterStatus in value )
+				{
+					_userComments.addItemAt( comment, 0 );
+					if( _userComments.length > USER_TIMELINE_MAX_COMMENTS ) _userComments.removeItemAt( _userComments.length - 1 );
+				}
+			}
+			
+			public function set publicTimeline( value : ArrayCollection ) : void
+			{				
+				_publicComments.removeAll();
+				for each( var status : TwitterStatus in value )
+				{
+					_publicComments.addItem( status );
+				}							
+			}
+			
+			public function set replies( value : ArrayCollection ) : void
+			{
+				_replies = value;
+			}
+			
+			public function set friends( value : ArrayCollection ) : void
+			{				
+				_friends.removeAll();
+				
+				for each( var user : TwitterUser in value )
+				{
+					_friends.addItem( user );
+				}
+				
+				updateFriendsButtons();								
+			}
+			
+			public function set followers( value : ArrayCollection ) : void
+			{
+				_followers = value;
+				updateFriendsButtons();
+			}
+			
+			private function updateFriendsButtons() : void
+			{
+				if( tb_friendsFollowers )
+				{
+					var index : Number = tb_friendsFollowers.selectedIndex;
+					tb_friendsFollowers.dataProvider = friendFollowers;		
+					tb_friendsFollowers.selectedIndex = index;
+				}		
+			}
+			
+			public function set searchResults( value : ArrayCollection ) : void
+			{
+				_searchResults.removeAll();
+				
+				for each( var status : TwitterStatus in value )
+				{
+					_searchResults.addItem( status );
+				}				
+			}
+			
+			public function set shrunkURL( value : String ) : void
+			{
+				PopUpManager.removePopUp( _shortenURLWindow );
+				ta_comment.text += value;
+			}
+			
+			public function setShinkUrlFailed() : void
+			{
+				_shortenURLWindow.setFailure();				
+			}
+			
+			public function set twitPicSuccess(value : String) : void
+			{
+				_twitWindow.uploadDone();
+				//PopUpManager.removePopUp( _twitWindow );
+			}
+			
+			public function setUploadToTwitPicFailed() : void
+			{
+				_twitWindow.setFailed();
+			}
+			
+			private function sendCreationEvent( name : String ) : void
+			{
+				dispatchEvent( new Event( name ) );
+			}
+			
+			private function requestSendComment() : void
+			{
+				dispatchEvent( new Event(REQUEST_SEND_COMMENT) );
+			}
+			
+			private function handleInputKeyUp( event : KeyboardEvent ) : void
+			{
+				if( event.keyCode == Keyboard.ENTER )
+				{
+					commentText = ta_comment.text;
+					ta_comment.text = "";
+					requestSendComment();
+				}
+				else
+				{
+					_characterCountString = String( 140 - ta_comment.text.length ) + " characters remaining";
+				}
+			}
+			
+			public function setSendCommentSuccess() : void
+			{
+				resultBox.visible = true;
+				messageTimer.start();				
+			}
+			
+			public function reset() : void
+			{
+				if( _userComments ) _userComments = null;
+				
+				_publicComments.removeAll();
+				_friends.removeAll();
+				_followers.removeAll();
+				_searchResults.removeAll();
+				_replies.removeAll();
+				
+				t_query.text = "";
+				t_filter.text = "";
+				
+				updateFriendsButtons();
+				
+				_showingSearch = false;
+				_showingFriends = false;
+				mainList.dataProvider = _userComments;
+				navButtons.selectedIndex = 0;
+				tb_friendsFollowers.selectedIndex = 0;				
+			}
+			
+			private function handleMessageTimerTick( event : TimerEvent ) : void
+			{				
+				resultBox.visible = false;								
+			}
+			
+			private function handleLogoutSelected() : void
+			{
+				dispatchEvent( new Event(LOGOUT_SELECTED) );
+			}
+			
+			private function showFeedBackView() : void
+			{
+				dispatchEvent( new Event(SHOW_FEED_BACK) );			
+			}
+			
+			private function showSettingsView() : void
+			{
+				dispatchEvent( new Event(SHOW_SETTINGS) );			
+			}
+						
+			private function showShrinkURLWindow() : void
+			{
+				_shortenURLWindow = PopUpManager.createPopUp( this, ShortenURLWindow, true ) as ShortenURLWindow;
+				PopUpManager.centerPopUp( _shortenURLWindow );
+				
+				_shortenURLWindow.addEventListener( ShortenURLWindow.SHRINK_URL, handleShrinkUrlRequest );
+			}
+			
+			private function showTwitPicUploadWindow():void
+			{
+				_twitWindow = PopUpManager.createPopUp(this, TwitpicWindow, true) as TwitpicWindow;
+				PopUpManager.centerPopUp(_twitWindow);
+				_twitWindow.addEventListener(TwitpicWindow.UPLOAD_TO_TWITPIC,handleUploadToTwitPic);
+			}
+			
+			private function handleUploadToTwitPic( event : Event ):void
+			{
+				twitPicVO = new TwitPicVO();
+				twitPicVO.file = _twitWindow.file
+				twitPicVO.description = _twitWindow.tp_comment.text;
+				
+				dispatchEvent( new Event(UPLOAD_TO_TWITPIC) );
+			}
+			
+			private function handleShrinkUrlRequest( event : Event ) : void
+			{
+				shrinkVO = new ShrinkUrlVO();
+				shrinkVO.longUrl = _shortenURLWindow.t_longUrl.text;
+				shrinkVO.provider = _shortenURLWindow.cb_shrinkProvider.selectedItem.data;
+				
+				dispatchEvent( new Event(SHRINK_URL) );				
+			}
+			
+			private function filterData( event : Event ) : void 
+			{
+	            _friends.filterFunction = filterFunction;
+	            _friends.refresh();
+	            	
+	            _followers.filterFunction = filterFunction;	            	
+	            _followers.refresh();	              
+        	}
+        	
+        	private function filterFunction( item : Object ) : Boolean 
+        	{
+        		var user : TwitterUser = item as TwitterUser;
+        		
+        		if( user.screenName.toLowerCase().indexOf( t_filter.text.toLowerCase() ) != -1 )
+        		{
+        			return( true );
+        		}
+        		
+        		if( user.description.toLowerCase().indexOf( t_filter.text.toLowerCase() ) != -1 )
+        		{
+        			return( true );
+        		}
+        		
+        		if( user.location.toLowerCase().indexOf( t_filter.text.toLowerCase() ) != -1 )
+        		{
+        			return( true );
+        		}
+        		
+        		if( user.name.toLowerCase().indexOf( t_filter.text.toLowerCase() ) != -1 )
+        		{
+        			return( true );
+        		}
+        		
+        		return( false );
+            }
+            
+            private function hideShowPublic():void
+            {
+            	/*
+            	if(mv_showPub.selected == true)
+            	{
+            		mainList.dataProvider = _publicComments;
+					_showingProgress = _publicProgressShowing;
+            	}else{
+            		*/
+            		_showingProgress = _searchProgressShowing;
+					mainList.dataProvider = _searchResults;            		
+            	//}
+            }		
+			
+			private function doSearch():void
+			{
+				_showingProgress = _searchProgressShowing;
+				mainList.dataProvider = _searchResults;
+				//  PETE mv_showPub.selected = false;
+				dispatchEvent( new Event(EVENT_SEARCH) )
+			}
+			
+			private function showButtons(event : ListEvent ) : void
+			{
+				CommentItemRenderer(event.itemRenderer).showButtons();
+			}
+			
+			private function hideButtons(event : ListEvent ) : void
+			{
+				CommentItemRenderer(event.itemRenderer).hideButtons();
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:ArrayCollection id="friendFollowers">
+		<mx:Object label="Friends({_friends.length})" data="friends" />
+		<mx:Object label="Followers({_followers.length})" data="followers" />
+	</mx:ArrayCollection>
+	
+	<mx:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="2000" />
+	<mx:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="2000" />
+	
+	
+	<mx:Box direction="horizontal" width="100%" height="45" backgroundColor="#1a1a1a" 
+			verticalAlign="middle" 
+			paddingLeft="20" paddingRight="20" horizontalGap="0" verticalGap="0">
+		
+		<mx:Label text="toro" styleName="header" />
+		
+		<mx:Spacer width="100%" />
+		
+		<mx:LinkButton color="#018ee8" label="feedback" paddingLeft="0" paddingRight="0" 
+			click="showFeedBackView()" />
+		
+		<mx:Label text="|" paddingLeft="0" paddingRight="0" textAlign="center" />
+		
+		<mx:LinkButton color="#018ee8" label="settings" paddingLeft="0" paddingRight="0" 
+			click="showSettingsView()" />
+		
+		<mx:Label text="|" paddingLeft="0" paddingRight="0" textAlign="center" />
+		
+		<mx:LinkButton color="#018ee8" label="logout" paddingLeft="0" paddingRight="0" 
+			click="handleLogoutSelected()" />
+		
+	</mx:Box>
+	
+	
+	<mx:ToggleButtonBar id="navButtons" width="100%" height="30" itemClick="handleChangeView( event )" buttonStyleName="navButtons">
+		<mx:dataProvider>
+			<mx:Array>
+				<mx:Object label="RECENT" data="recent" />
+				<mx:Object label="PUBLIC" data="public" />
+				<mx:Object label="FRIENDS" data="friends" />
+				<mx:Object label="REPLIES" data="replies" />
+				<mx:Object label="SEARCH" data="search" />
+			</mx:Array>
+		</mx:dataProvider>
+	</mx:ToggleButtonBar>
+	
+	
+	<mx:Box width="100%" visible="{_showingFriends}" includeInLayout="{_showingFriends}" paddingTop="5" paddingBottom="0">
+		
+		<!--<mx:LinkBar dataProvider="{vs_friendsFollowers}" width="100%" paddingLeft="5" />-->
+		
+		<flexlib:PromptingTextInput id="t_filter" width="100%" prompt="filter by name, username, or description" change="filterData(event)" />
+		
+		<mx:ToggleButtonBar id="tb_friendsFollowers" width="100%" horizontalAlign="center" buttonStyleName="test" 
+			itemClick="handleChangeFriendView( event )" dataProvider="{friendFollowers}" />
+		
+		
+	</mx:Box>	
+	
+	<mx:HBox verticalAlign="middle" height="30" paddingLeft="10" width="100%" 
+		visible="{_showingSearch}" includeInLayout="{_showingSearch}">
+		
+		<flexlib:PromptingTextInput id="t_query" prompt="" enter="doSearch()" />
+		<mx:Button click="doSearch()" label="search" />
+		<!--  PETE: FOR LATER, PERHAPS? mx:Button id="mv_showPub" toggle="true" label="toggle public" click="hideShowPublic()" / -->
+		
+	</mx:HBox>
+	
+	
+		
+	<mx:List id="mainList" width="100%" height="100%" variableRowHeight="true"
+		itemRenderer="com.gen6.toro.view.components.CommentItemRenderer" itemRollOver="showButtons(event)" 
+		itemClick="showButtons(event)"
+		alternatingItemColors="[#fafafa, #fafafa]" paddingBottom="0" paddingTop="0"/>
+	<mx:ProgressBar id="progress_main" indeterminate="true" height="4" width="100%" themeColor="#018ee8" 
+		visible="{_showingProgress}" includeInLayout="{_showingProgress}" />		
+	
+	<!--
+	<mx:TabBar dataProvider="{comment_views}" width="100%" height="30" />
+	-->
+	
+	
+	<!--
+	<mx:ViewStack id="comment_views" width="100%" height="100%">
+		
+		<components:UserTimelineView label="RECENT" id="homeView" width="100%" height="100%" 
+				creationComplete="sendCreationEvent( HOME_VIEW_CREATED )" />
+				
+		<components:PublicView label="PUBLIC" id="publicView" width="100%" height="100%"
+			creationComplete="sendCreationEvent( PUBLIC_VIEW_CREATED )" />
+			
+		
+		<components:FriendView label="FRIENDS" id="friendView" width="100%" height="100%" 
+			creationComplete="sendCreationEvent( FRIEND_VIEW_CREATED )" />
+		
+		<components:RepliesView label="REPLIES" id="repliesView" width="100%" height="100%" 
+			creationComplete="sendCreationEvent( REPLIES_VIEW_CREATED )" />
+			
+		<components:SearchView label="SEARCH" id="searchView" width="100%" height="100%" 
+			creationComplete="sendCreationEvent( SEARCH_VIEW_CREATED )" />
+			
+	</mx:ViewStack>
+	-->
+	<mx:Box width="100%" height="5" backgroundColor="#1a1a1a">
+		
+	</mx:Box>			   
+	
+	<mx:Box width="100%" verticalGap="0" visible="{_showingInput}" includeInLayout="{_showingInput}"
+			borderStyle="solid" borderColor="#333333">		
+		
+		<flexlib:PromptingTextArea id="ta_comment" width="100%" height="50" prompt="tweet here ..." 
+			maxChars="140" themeColor="#ffffff" borderStyle="none" borderColor="#333333" 
+			keyUp="handleInputKeyUp(event)" focusAlpha="0" />
+		
+		<mx:HBox width="100%" backgroundColor="#ffffff" paddingBottom="0" 
+				 paddingRight="5" verticalAlign="bottom">
+			
+			<mx:LinkButton label="link" color="#666666" click="showShrinkURLWindow()" />
+			<mx:LinkButton label="twitpic" color="#666666" click="showTwitPicUploadWindow()" />
+			
+			<mx:Box id="resultBox" backgroundColor="#ffeb11" width="100%" visible="false"
+					showEffect="{fadeIn}" hide="{fadeOut}">
+				<mx:Label text="message sent" width="100%" textAlign="center"/>
+			</mx:Box>
+			
+			<mx:Label text="{ta_comment.maxChars - ta_comment.text.length} characters remaining" color="#999999" />						
+			
+		</mx:HBox>
+	
+	</mx:Box>
+	
+</mx:VBox>
